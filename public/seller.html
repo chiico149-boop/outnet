@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Shop — THE OUT FIT</title>
+  <meta name="description" content="Browse products from an independent seller on THE OUT FIT.">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main id="store-root"><div class="store-banner"></div></main>
+  <script src="/js/common.js"></script>
+  <script>
+  (async () => {
+    const { I, $, esc, date, api, stars, avatar, productCard, cacheProducts, renderLayout, reveal, qs, toast, modal } = TOF;
+    await renderLayout();
+    let data;
+    try { data = await api('/api/sellers/' + qs('id')); }
+    catch { $('#store-root').innerHTML = `<div class="container empty">${I.store}<h1>Seller not found</h1><a class="btn mt-2" href="/">Go home</a></div>`; return; }
+    const { seller: s, products } = data;
+    document.title = (s.shopName || s.name) + ' — THE OUT FIT';
+    cacheProducts(products);
+    $('#store-root').innerHTML = `
+      <div class="store-banner"></div>
+      <div class="container">
+        <div class="store-head">
+          ${avatar(s)}
+          <div class="grow">
+            <span class="pill">${I.check.replace('<svg', '<svg width="12"')} Verified seller</span>
+            <h1 style="margin:10px 0 4px;font-size:2.4rem">${esc(s.shopName)}</h1>
+            <p class="text-2 mb-0" style="max-width:640px">${esc(s.bio || 'Welcome to my shop!')}</p>
+            <div class="store-stats">
+              <div><strong>${products.length}</strong><span>Products</span></div>
+              <div><strong>${s.rating || '—'} ★</strong><span>${s.reviews} reviews</span></div>
+              <div><strong>${s.sales}</strong><span>Sales</span></div>
+              <div><strong>${date(s.createdAt)}</strong><span>Joined</span></div>
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm" id="report-seller-btn">${I.flag} Report seller</button>
+        </div>
+        <section class="section-sm">
+          <div class="section-head"><h2>Products by ${esc(s.shopName)}</h2></div>
+          <div class="product-grid">${products.map(p => productCard({ ...p, seller: s })).join('') || '<p class="muted">This seller has no products yet.</p>'}</div>
+        </section>
+      </div>`;
+    reveal();
+
+    $('#report-seller-btn').onclick = () => modal('Report this seller', `
+      <form id="report-form">
+        <p class="text-2">Tell us what went wrong. Reports are reviewed by our team.</p>
+        <div class="field"><label for="rp-reason">Reason</label>
+          <select class="input" id="rp-type"><option>Item not received</option><option>Counterfeit / fake item</option><option>Item not as described</option><option>Scam or fraud</option><option>Other</option></select></div>
+        <div class="field"><label for="rp-reason">Details</label><textarea class="input" id="rp-reason" required minlength="5" placeholder="Describe the problem…"></textarea></div>
+        <div class="grid-2">
+          <div class="field"><label for="rp-name">Your name</label><input class="input" id="rp-name"></div>
+          <div class="field"><label for="rp-email">Email</label><input class="input" type="email" id="rp-email"></div>
+        </div>
+        <button class="btn btn-danger btn-block" id="submit-report">Send report</button>
+      </form>`, { onOpen: (m, close) => {
+        m.querySelector('#report-form').onsubmit = async e => {
+          e.preventDefault();
+          try {
+            const r = await api(`/api/sellers/${s._id}/report`, { method: 'POST', body: { reason: m.querySelector('#rp-type').value + ': ' + m.querySelector('#rp-reason').value, name: m.querySelector('#rp-name').value, email: m.querySelector('#rp-email').value } });
+            toast(r.message, 'success'); close();
+          } catch (err) { toast(err.message, 'error'); }
+        };
+      }});
+  })();
+  </script>
+</body>
+</html>

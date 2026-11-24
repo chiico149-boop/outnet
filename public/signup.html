@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Become a Seller — THE OUT FIT</title>
+  <meta name="description" content="Create your THE OUT FIT seller account and start listing fashion products today.">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="auth-wrap">
+    <div class="auth-visual" style="background-image:url('/images/products/p10_quilted_bag.png')">
+      <div class="quote"><span class="eyebrow">Start selling</span><h2>Open your shop in <span class="gold-text">minutes</span></h2><p class="text-2">List your own products or choose from our supplier catalog. Get paid via card, PayPal or USDT.</p></div>
+    </div>
+    <div class="auth-form">
+      <div class="box">
+        <h1>Create seller account</h1>
+        <p class="text-2">Already a seller? <a href="/login.html" class="gold-text">Log in</a></p>
+        <div id="msg"></div>
+        <form id="signup-form" class="mt-3">
+          <div class="grid-2">
+            <div class="field"><label for="name">Full name</label><input class="input" id="name" required autocomplete="name"></div>
+            <div class="field"><label for="shopName">Shop name</label><input class="input" id="shopName" required></div>
+          </div>
+          <div class="field"><label for="email">Email</label><input class="input" type="email" id="email" required autocomplete="email"></div>
+          <div class="grid-2">
+            <div class="field"><label for="country">Country</label><input class="input" id="country"></div>
+            <div class="field"><label for="phone">Phone</label><input class="input" id="phone"></div>
+          </div>
+          <div class="field"><label for="password">Password</label><input class="input" type="password" id="password" required minlength="6" autocomplete="new-password"><span class="hint">At least 6 characters</span></div>
+          <div class="field"><label for="password2">Confirm password</label><input class="input" type="password" id="password2" required autocomplete="new-password"></div>
+          <button class="btn btn-gold btn-block btn-lg" id="signup-btn">Create account</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <script src="/js/common.js"></script>
+  <script>
+  (async () => {
+    const { $, api, renderLayout, esc } = TOF;
+    await renderLayout();
+    $('#signup-form').onsubmit = async e => {
+      e.preventDefault();
+      const err = m => $('#msg').innerHTML = `<div class="alert error mt-2">${esc(m)}</div>`;
+      if ($('#password').value !== $('#password2').value) return err('Passwords do not match');
+      const btn = $('#signup-btn'); btn.disabled = true;
+      try {
+        await api('/api/auth/signup', { method: 'POST', body: {
+          name: $('#name').value, shopName: $('#shopName').value, email: $('#email').value,
+          country: $('#country').value, phone: $('#phone').value, password: $('#password').value } });
+        location.href = '/dashboard.html?welcome=1';
+      } catch (e2) { err(e2.message); btn.disabled = false; }
+    };
+  })();
+  </script>
+</body>
+</html>

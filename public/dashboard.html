@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard — THE OUT FIT</title>
+  <meta name="description" content="Manage your THE OUT FIT seller account: product listings, catalog, wallet, deposits and withdrawals.">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="dash">
+    <aside class="dash-side">
+      <div class="who" id="who"></div>
+      <nav class="dash-nav" id="dash-nav">
+        <button data-tab="overview" class="active" id="nav-overview"><span data-i="grid"></span>Overview</button>
+        <button data-tab="listings" id="nav-listings"><span data-i="box"></span>My listings</button>
+        <button data-tab="catalog" id="nav-catalog"><span data-i="plus"></span>Choose products</button>
+        <button data-tab="wallet" id="nav-wallet"><span data-i="wallet"></span>Wallet</button>
+        <button data-tab="orders" id="nav-orders"><span data-i="receipt"></span>Orders</button>
+        <button data-tab="settings" id="nav-settings"><span data-i="settings"></span>Settings</button>
+        <a href="#" id="view-store"><span data-i="store"></span>View my shop</a>
+        <button id="logout-btn"><span data-i="logout"></span>Log out</button>
+      </nav>
+    </aside>
+    <section class="dash-main" id="dash-main">
+      <div class="skeleton" style="height:400px"></div>
+    </section>
+  </main>
+  <script src="/js/common.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

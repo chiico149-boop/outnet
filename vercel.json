@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/the-outfit-admin", "destination": "/the-outfit-admin.html" }
+  ]
+}

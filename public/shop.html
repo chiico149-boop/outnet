@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop — THE OUT FIT</title>
+  <meta name="description" content="Browse fashion by category: women, men, shoes, bags, watches, jewelry, accessories and sportswear at THE OUT FIT.">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <div class="crumbs"><a href="/">Home</a> / <span id="crumb">Shop</span></div>
+        <h1 id="page-title">All products</h1>
+        <p class="text-2 mb-0" id="page-desc">Discover curated fashion from independent sellers</p>
+      </div>
+    </section>
+    <div class="container shop-layout">
+      <aside class="filters">
+        <h4>Categories</h4>
+        <ul class="filter-list" id="filter-cats"></ul>
+        <h4>Price</h4>
+        <ul class="filter-list" id="filter-price">
+          <li><a href="#" data-min="" data-max="">Any price</a></li>
+          <li><a href="#" data-min="0" data-max="50">Under $50</a></li>
+          <li><a href="#" data-min="50" data-max="100">$50 – $100</a></li>
+          <li><a href="#" data-min="100" data-max="200">$100 – $200</a></li>
+          <li><a href="#" data-min="200" data-max="">Over $200</a></li>
+        </ul>
+      </aside>
+      <div>
+        <div class="toolbar">
+          <span class="text-2" id="result-count">Loading…</span>
+          <select class="input" id="sort-select" aria-label="Sort products">
+            <option value="">Recommended</option>
+            <option value="newest">Newest</option>
+            <option value="popular">Best selling</option>
+            <option value="rating">Top rated</option>
+            <option value="price_asc">Price: low to high</option>
+            <option value="price_desc">Price: high to low</option>
+          </select>
+        </div>
+        <div class="product-grid" id="product-grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))"></div>
+        <div class="center mt-4"><button class="btn hidden" id="load-more">Load more</button></div>
+      </div>
+    </div>
+  </main>
+  <script src="/js/common.js"></script>
+  <script>
+  (async () => {
+    const { $, $$, esc, api, productCard, cacheProducts, renderLayout, reveal, qs, loadCategories, I } = TOF;
+    await renderLayout();
+    const params = new URLSearchParams(location.search);
+    const state = { category: params.get('category') || '', q: params.get('q') || '', sort: params.get('sort') || '', min: '', max: '', page: 1 };
+    $('#sort-select').value = state.sort;
+
+    const cats = await loadCategories();
+    const total = cats.reduce((a, c) => a + c.count, 0);
+    $('#filter-cats').innerHTML = `<li><a href="/shop.html" class="${!state.category ? 'active' : ''}">All <span>${total}</span></a></li>` +
+      cats.map(c => `<li><a href="/shop.html?category=${c.slug}" class="${state.category === c.slug ? 'active' : ''}">${esc(c.name)} <span>${c.count}</span></a></li>`).join('');
+
+    const cat = cats.find(c => c.slug === state.category);
+    if (cat) {
+      $('#page-title').textContent = cat.name;
+      $('#page-desc').textContent = cat.description;
+      $('#crumb').textContent = cat.name;
+      document.title = cat.name + ' — THE OUT FIT';
+    }
+    if (state.q) { $('#page-title').textContent = `Results for "${state.q}"`; $('#crumb').textContent = 'Search'; }
+
+    async function load(append = false) {
+      const p = new URLSearchParams({ page: state.page, limit: 12 });
+      ['category', 'q', 'sort', 'min', 'max'].forEach(k => state[k] && p.set(k, state[k]));
+      const data = await api('/api/products?' + p);
+      cacheProducts(data.items);
+      const html = data.items.map(productCard).join('');
+      if (append) $('#product-grid').insertAdjacentHTML('beforeend', html);
+      else $('#product-grid').innerHTML = html || `<div class="empty" style="grid-column:1/-1">${I.bag}<h3>No products found</h3><p>Try another category or search term.</p><a href="/shop.html" class="btn mt-2">Browse all</a></div>`;
+      $('#result-count').textContent = `${data.total} product${data.total === 1 ? '' : 's'}`;
+      $('#load-more').classList.toggle('hidden', state.page >= data.pages);
+      reveal();
+    }
+
+    $('#sort-select').addEventListener('change', e => { state.sort = e.target.value; state.page = 1; load(); });
+    $('#load-more').addEventListener('click', () => { state.page++; load(true); });
+    $$('#filter-price a').forEach(a => a.addEventListener('click', e => {
+      e.preventDefault();
+      $$('#filter-price a').forEach(x => x.classList.remove('active'));
+      a.classList.add('active');
+      state.min = a.dataset.min; state.max = a.dataset.max; state.page = 1; load();
+    }));
+    $('#filter-price a').classList.add('active');
+    load();
+  })();
+  </script>
+</body>
+</html>

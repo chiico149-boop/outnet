@@ -6,7 +6,7 @@ const Product = require('../models/Product');
 const Review = require('../models/Review');
 const User = require('../models/User');
 const Order = require('../models/Order');
-const { validEmail, validateCard, cardBrand } = require('../utils/payments');
+const { validEmail, depositAddresses, depositNetworks } = require('../utils/payments');
 
 const router = express.Router();
 const isId = (id) => mongoose.isValidObjectId(id);
@@ -192,6 +192,14 @@ router.post('/sellers/:id/report', async (req, res) => {
   res.status(201).json({ ok: true, message: 'Report sent. Our team will review it.' });
 });
 
+// GET /api/pay-info  (public: where buyers send USDT / PayPal payments)
+router.get('/pay-info', (req, res) => {
+  const all = depositAddresses();
+  const usdt = {};
+  for (const n of depositNetworks()) usdt[n] = all[n];
+  res.json({ usdt, paypalReceiver: process.env.PAYPAL_RECEIVER_EMAIL || '' });
+});
+
 // POST /api/orders  (guest checkout)
 router.post('/orders', async (req, res) => {
   try {
@@ -200,19 +208,15 @@ router.post('/orders', async (req, res) => {
     if (!buyer || !buyer.name || !validEmail(buyer.email) || !buyer.address) {
       return res.status(400).json({ message: 'Please fill in name, valid email and address' });
     }
-    if (!['card', 'paypal', 'usdt'].includes(paymentMethod)) return res.status(400).json({ message: 'Choose a payment method' });
+    if (!['paypal', 'usdt'].includes(paymentMethod)) return res.status(400).json({ message: 'Choose a payment method' });
 
     let paymentRef = '';
-    if (paymentMethod === 'card') {
-      const err = validateCard(payment);
-      if (err) return res.status(400).json({ message: err });
-      paymentRef = `${cardBrand(payment.number)} •••• ${String(payment.number).replace(/\D/g, '').slice(-4)}`;
-    } else if (paymentMethod === 'paypal') {
+    if (paymentMethod === 'paypal') {
       if (!validEmail(payment.paypalEmail)) return res.status(400).json({ message: 'Enter your PayPal email' });
       paymentRef = 'PayPal ' + payment.paypalEmail;
     } else {
-      if (!payment.txHash || payment.txHash.length < 10) return res.status(400).json({ message: 'Enter the USDT transaction hash' });
-      paymentRef = `USDT ${payment.network || ''} ${payment.txHash}`;
+      const network = depositNetworks().includes(payment.network) ? payment.network : 'TRC20';
+      paymentRef = `USDT ${network} → ${depositAddresses()[network]}`;
     }
 
     const blocked = (await blockedSellerIds()).map(String);

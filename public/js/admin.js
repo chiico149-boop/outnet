@@ -11,7 +11,7 @@
     const d = t.details || {};
     if (t.method === 'card') return `${esc(d.cardBrand || 'Card')} •••• ${esc(d.cardLast4 || '')}<div class="hint">${esc(d.cardName || '')}</div>`;
     if (t.method === 'paypal') return `PayPal<div class="hint">${esc(d.paypalEmail || '')}</div>`;
-    if (t.method === 'usdt') return `USDT ${esc(d.network || '')}<div class="hint" style="word-break:break-all;max-width:260px">${t.type === 'withdraw' ? 'To: ' + esc(d.address || '') : 'TX: ' + esc(d.txHash || '')}</div>`;
+    if (t.method === 'usdt') return `USDT ${esc(d.network || '')}<div class="hint" style="word-break:break-all;max-width:260px">${t.type === 'withdraw' ? 'To: ' + esc(d.address || '') : (d.txHash ? 'TX: ' + esc(d.txHash) : 'To: ' + esc(d.address || ''))}</div>`;
     if (t.method === 'order') return 'Order ' + esc(d.orderId || '');
     return esc(t.note || 'Admin');
   };

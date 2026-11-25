@@ -247,8 +247,8 @@ async function seedDatabase({ wipe = true, quiet = false } = {}) {
   const { elan, urban, luxe, stride } = sellerDocs;
   await Transaction.insertMany([
     { user: elan._id, type: 'admin_credit', method: 'admin', amount: 500, note: 'Welcome bonus', status: 'approved', reviewedAt: daysAgo(10), createdAt: daysAgo(10) },
-    { user: elan._id, type: 'deposit', method: 'card', amount: 250, details: { cardBrand: 'Visa', cardLast4: '4242', cardName: 'Sophie Laurent' }, status: 'pending' },
-    { user: urban._id, type: 'deposit', method: 'usdt', amount: 300, details: { network: 'TRC20', address: process.env.USDT_TRC20, txHash: 'a3f9c2e1b7d84f6a9e0c3b5d7f1a2e4c6b8d0f2a4c6e8b0d2f4a6c8e0b2d4f6a' }, status: 'pending' },
+    { user: elan._id, type: 'deposit', method: 'paypal', amount: 250, details: { paypalEmail: 'sophie.laurent@example.com' }, status: 'pending' },
+    { user: urban._id, type: 'deposit', method: 'usdt', amount: 300, details: { network: 'TRC20', address: require('./payments').depositAddresses().TRC20, txHash: 'a3f9c2e1b7d84f6a9e0c3b5d7f1a2e4c6b8d0f2a4c6e8b0d2f4a6c8e0b2d4f6a' }, status: 'pending' },
     { user: luxe._id, type: 'withdraw', method: 'paypal', amount: 150, details: { paypalEmail: 'luxe@paypal.me' }, status: 'pending' },
     { user: stride._id, type: 'deposit', method: 'paypal', amount: 120, details: { paypalEmail: 'stride@paypal.me' }, status: 'approved', reviewedAt: daysAgo(3), createdAt: daysAgo(3) },
   ]);

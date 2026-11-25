@@ -28,7 +28,7 @@ Upload **all** files of this folder to your repository (including `vercel.json`,
 | `JWT_SECRET` | any long random text | recommended |
 | `ADMIN_USER` | `admin` | optional |
 | `ADMIN_PASS` | `admin1212` | optional |
-| `USDT_TRC20` / `USDT_ERC20` / `USDT_BEP20` | your USDT wallet addresses | optional |
+| `USDT_TRC20` / `USDT_ERC20` / `USDT_BEP20` | your USDT wallet addresses (TRC20 defaults to TJAmBhkPcgF26FasQ1VwYbKygcL2z5ndZt) | optional |
 | `PAYPAL_RECEIVER_EMAIL` | your PayPal email | optional |
 
 3. **Deployments → ⋯ → Redeploy** (environment variables only apply after a redeploy).
@@ -60,12 +60,12 @@ npm start                # http://localhost:3000
 - Home page: hero, categories, featured products, listings per category, top sellers
 - 8 fashion categories, 24 products with photos, prices, sizes and star reviews, each sold by a specific seller
 - Seller signup/login (MongoDB, bcrypt, JWT cookie)
-- Seller dashboard: listings with photo upload, **Choose products** from the supplier catalog, wallet deposit/withdraw via **Card**, **PayPal**, **USDT** (network, address, QR code, TXID), payment info, orders
+- Seller dashboard: listings with photo upload, **Choose products** from the supplier catalog, wallet deposit/withdraw via **PayPal** and **USDT TRC20** (network, address, QR code, TXID), payment info, orders
 - Public seller shop with **Report seller** button, cart & checkout
 - Hidden admin panel: stats, sellers (deposit, block, report, delete), approve/reject transactions, reports, listings, catalog, orders
 
 ## Payments
-Payments are recorded as **pending** and approved by the admin (deposits credit the balance; withdrawals are held and refunded if rejected). Card numbers are validated but only brand + last 4 digits are stored. To charge real money, connect Stripe / PayPal Checkout / a crypto gateway in `routes/wallet.js` and `routes/shop.js`.
+Payments are recorded as **pending** and approved by the admin (deposits credit the balance; withdrawals are held and refunded if rejected). To charge real money, connect Stripe / PayPal Checkout / a crypto gateway in `routes/wallet.js` and `routes/shop.js`.
 
 ## Structure
 ```

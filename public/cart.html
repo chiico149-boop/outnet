@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shopping Bag — THE OUT FIT</title>
-  <meta name="description" content="Review your shopping bag and check out securely with card, PayPal or USDT.">
+  <meta name="description" content="Review your shopping bag and check out securely with PayPal or USDT.">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -17,7 +17,9 @@
   (async () => {
     const { I, $, $$, esc, money, api, renderLayout, cart, toast } = TOF;
     await renderLayout();
-    let method = 'card';
+    let method = 'usdt';
+    let payInfo = { usdt: {}, paypalReceiver: '' };
+    try { payInfo = await api('/api/pay-info'); } catch {}
 
     function render() {
       const items = cart.get();
@@ -56,10 +58,9 @@
                 <div class="field"><label for="b-country">Country</label><input class="input" id="b-country"></div>
               </div>
               <label class="hint">Payment method</label>
-              <div class="methods mt-1">
-                <div class="method ${method==='card'?'active':''}" data-m="card"><div class="m-ico">${I.card}</div><strong>Card</strong></div>
-                <div class="method ${method==='paypal'?'active':''}" data-m="paypal"><div class="m-ico">${I.paypal}</div><strong>PayPal</strong></div>
+              <div class="methods mt-1" style="grid-template-columns:repeat(2,1fr)">
                 <div class="method ${method==='usdt'?'active':''}" data-m="usdt"><div class="m-ico">${I.usdt}</div><strong>USDT</strong></div>
+                <div class="method ${method==='paypal'?'active':''}" data-m="paypal"><div class="m-ico">${I.paypal}</div><strong>PayPal</strong></div>
               </div>
               <div id="pay-fields"></div>
               <div class="summary-row"><span>Subtotal</span><span>${money(sub)}</span></div>
@@ -79,19 +80,21 @@
 
     function renderPay() {
       const f = $('#pay-fields');
-      if (method === 'card') f.innerHTML = `
-        <div class="field"><label>Card number</label><input class="input" id="c-num" inputmode="numeric" placeholder="4242 4242 4242 4242" required></div>
-        <div class="grid-3"><div class="field" style="grid-column:span 1"><label>Expiry</label><input class="input" id="c-exp" placeholder="MM/YY" required></div><div class="field"><label>CVC</label><input class="input" id="c-cvc" placeholder="123" required></div><div class="field"><label>Name</label><input class="input" id="c-name" required></div></div>`;
-      else if (method === 'paypal') f.innerHTML = `<div class="field"><label>PayPal email</label><input class="input" type="email" id="pp-email" required placeholder="you@example.com"></div>`;
-      else f.innerHTML = `
-        <div class="field"><label>Network</label><select class="input" id="u-net"><option>TRC20</option><option>ERC20</option><option>BEP20</option></select></div>
-        <div class="field"><label>Transaction hash (TXID)</label><input class="input" id="u-tx" required placeholder="Paste your transaction hash"></div>`;
+      if (method === 'paypal') f.innerHTML = `${payInfo.paypalReceiver ? `<p class="hint">Send the payment to <strong style="color:var(--text)">${esc(payInfo.paypalReceiver)}</strong> on PayPal.</p>` : ''}<div class="field"><label>PayPal email</label><input class="input" type="email" id="pp-email" required placeholder="you@example.com"></div>`;
+      else {
+        const nets = Object.keys(payInfo.usdt || {});
+        const list = nets.length ? nets : ['TRC20'];
+        f.innerHTML = `
+        <div class="field"><label>Network</label><select class="input" id="u-net">${list.map(n => `<option value="${n}">USDT · ${n}</option>`).join('')}</select></div>
+        <div class="field"><label>Send USDT to this address</label><div class="addr" style="display:flex;gap:8px;align-items:center;word-break:break-all"><span class="grow" id="u-addr">${esc((payInfo.usdt || {})[list[0]] || '')}</span><button type="button" class="icon-btn" style="width:34px;height:34px;flex-shrink:0" id="u-copy" title="Copy">${I.copy}</button></div></div>`;
+        $('#u-net').onchange = () => ($('#u-addr').textContent = (payInfo.usdt || {})[$('#u-net').value] || '');
+        $('#u-copy').onclick = () => navigator.clipboard.writeText($('#u-addr').textContent).then(() => toast('Address copied', 'success'));
+      }
     }
 
     async function placeOrder(e) {
       e.preventDefault();
-      const payment = method === 'card' ? { number: $('#c-num').value, expiry: $('#c-exp').value, cvc: $('#c-cvc').value, name: $('#c-name').value }
-        : method === 'paypal' ? { paypalEmail: $('#pp-email').value } : { network: $('#u-net').value, txHash: $('#u-tx').value };
+      const payment = method === 'paypal' ? { paypalEmail: $('#pp-email').value } : { network: $('#u-net').value };
       const btn = $('#place-order'); btn.disabled = true; btn.textContent = 'Processing…';
       try {
         const r = await api('/api/orders', { method: 'POST', body: {

@@ -133,7 +133,7 @@
     async wallet(mode = 'deposit') {
       const w = await api('/api/wallet');
       main.innerHTML = `
-        <h1>Wallet</h1><p class="text-2">Deposit funds and withdraw your earnings via card, PayPal or USDT.</p>
+        <h1>Wallet</h1><p class="text-2">Deposit funds and withdraw your earnings via PayPal or USDT.</p>
         <div class="stat-grid">
           <div class="stat highlight"><span>Available balance</span><strong>${money(w.balance)}</strong></div>
           <div class="stat"><span>Pending deposits</span><strong>${money(w.pendingDeposits)}</strong></div>
@@ -146,16 +146,15 @@
             <button class="tab ${mode === 'withdraw' ? 'active' : ''}" data-mode="withdraw" id="tab-withdraw">Withdraw</button>
           </div>
           <label class="hint">Payment method</label>
-          <div class="methods mt-1" style="max-width:620px">
-            <div class="method active" data-m="card" id="m-card"><div class="m-ico">${I.card}</div><strong>Card</strong><span>Visa · Mastercard</span></div>
+          <div class="methods mt-1" style="max-width:620px;grid-template-columns:repeat(2,1fr)">
+            <div class="method active" data-m="usdt" id="m-usdt"><div class="m-ico">${I.usdt}</div><strong>USDT</strong><span>TRC20 (Tron)</span></div>
             <div class="method" data-m="paypal" id="m-paypal"><div class="m-ico">${I.paypal}</div><strong>PayPal</strong><span>Fast &amp; secure</span></div>
-            <div class="method" data-m="usdt" id="m-usdt"><div class="m-ico">${I.usdt}</div><strong>USDT</strong><span>TRC20 · ERC20 · BEP20</span></div>
           </div>
           <form id="wallet-form" style="max-width:620px"></form>
         </div>
         <h3 class="mt-4">Transaction history</h3>
         ${txTable(w.transactions)}`;
-      let method = 'card';
+      let method = 'usdt';
       const draw = () => drawWalletForm(mode, method, w);
       $$('[data-mode]').forEach((t) => (t.onclick = () => { mode = t.dataset.mode; $$('[data-mode]').forEach((x) => x.classList.toggle('active', x === t)); draw(); }));
       $$('[data-m]').forEach((m) => (m.onclick = () => { method = m.dataset.m; $$('[data-m]').forEach((x) => x.classList.toggle('active', x === m)); draw(); }));
@@ -232,33 +231,7 @@
       <span class="hint">Minimum ${money(mode === 'deposit' ? w.limits.minDeposit : w.limits.minWithdraw)}${mode === 'withdraw' ? ' · Available ' + money(w.balance) : ''}</span></div>`;
     const submitLabel = mode === 'deposit' ? 'Submit deposit' : 'Request withdrawal';
 
-    if (method === 'card') {
-      f.innerHTML = `
-        <div class="card-preview"><span class="brand" id="cp-brand">CARD</span><div class="chip-ico"></div>
-          <div class="num" id="cp-num">•••• •••• •••• ••••</div>
-          <div class="row"><div><small>Card holder</small><span id="cp-name">YOUR NAME</span></div><div><small>Expires</small><span id="cp-exp">MM/YY</span></div></div></div>
-        ${amountField}
-        <div class="field"><label for="c-num">Card number</label><input class="input" id="c-num" inputmode="numeric" maxlength="23" placeholder="1234 5678 9012 3456" required autocomplete="cc-number"></div>
-        <div class="field"><label for="c-name">Cardholder name</label><input class="input" id="c-name" required autocomplete="cc-name"></div>
-        ${mode === 'deposit' ? `<div class="grid-2"><div class="field"><label for="c-exp">Expiry</label><input class="input" id="c-exp" placeholder="MM/YY" maxlength="5" required autocomplete="cc-exp"></div>
-        <div class="field"><label for="c-cvc">CVC</label><input class="input" id="c-cvc" placeholder="123" maxlength="4" required autocomplete="cc-csc"></div></div>` : ''}
-        <p class="hint">${I.shield.replace('<svg', '<svg width="14" style="vertical-align:-2px"')} Card details are encrypted in transit. We never store your full card number or CVC.</p>
-        <button class="btn btn-gold btn-lg btn-block" id="wallet-submit">${submitLabel}</button>`;
-      const brand = (n) => (/^4/.test(n) ? 'VISA' : /^(5[1-5]|2[2-7])/.test(n) ? 'MASTERCARD' : /^3[47]/.test(n) ? 'AMEX' : 'CARD');
-      $('#c-num').oninput = (e) => {
-        const d = e.target.value.replace(/\D/g, '').slice(0, 19);
-        e.target.value = d.replace(/(.{4})/g, '$1 ').trim();
-        $('#cp-num').textContent = (d + '•'.repeat(Math.max(0, 16 - d.length))).replace(/(.{4})/g, '$1 ').trim();
-        $('#cp-brand').textContent = brand(d);
-      };
-      $('#c-name').oninput = (e) => ($('#cp-name').textContent = e.target.value.toUpperCase() || 'YOUR NAME');
-      if ($('#c-exp')) $('#c-exp').oninput = (e) => {
-        let v = e.target.value.replace(/\D/g, '').slice(0, 4);
-        if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2);
-        e.target.value = v;
-        $('#cp-exp').textContent = v || 'MM/YY';
-      };
-    } else if (method === 'paypal') {
+    if (method === 'paypal') {
       f.innerHTML = mode === 'deposit'
         ? `${amountField}
           <div class="alert warning" style="color:var(--text-2)">Send the payment to our PayPal account <strong style="color:var(--text)">${esc(w.paypalReceiver)}</strong>, then confirm below with the email you paid from.</div>
@@ -271,11 +244,10 @@
       f.innerHTML = `
         ${amountField}
         <div class="field"><label for="u-net">Network</label><select class="input" id="u-net">
-          ${['TRC20', 'ERC20', 'BEP20'].map((n) => `<option value="${n}" ${(mode === 'withdraw' && w.payout?.usdtNetwork === n) ? 'selected' : ''}>USDT · ${n} ${n === 'TRC20' ? '(Tron)' : n === 'ERC20' ? '(Ethereum)' : '(BNB Smart Chain)'}</option>`).join('')}
+          ${(mode === 'deposit' ? (w.depositNetworks?.length ? w.depositNetworks : ['TRC20']) : ['TRC20', 'ERC20', 'BEP20']).map((n) => `<option value="${n}" ${(mode === 'withdraw' && w.payout?.usdtNetwork === n) ? 'selected' : ''}>USDT · ${n} ${n === 'TRC20' ? '(Tron)' : n === 'ERC20' ? '(Ethereum)' : '(BNB Smart Chain)'}</option>`).join('')}
         </select></div>
         ${mode === 'deposit'
-          ? `<div class="usdt-box" id="usdt-box"><div class="skeleton" style="width:170px;height:170px"></div><div></div></div>
-             <div class="field"><label for="u-tx">Transaction hash (TXID)</label><input class="input" id="u-tx" required placeholder="Paste the TXID after sending"></div>`
+          ? `<div class="usdt-box" id="usdt-box"><div class="skeleton" style="width:170px;height:170px"></div><div></div></div>`
           : `<div class="field"><label for="u-addr">Your USDT wallet address</label><input class="input" id="u-addr" required value="${esc(w.payout?.usdtAddress || '')}" placeholder="T… (TRC20) or 0x… (ERC20/BEP20)"></div>
              <p class="hint">⚠ Make sure the address matches the selected network, otherwise funds may be lost.</p>`}
         <button class="btn btn-gold btn-lg btn-block" id="wallet-submit">${submitLabel}</button>`;
@@ -300,9 +272,8 @@
     f.onsubmit = async (e) => {
       e.preventDefault();
       const body = { method, amount: $('#w-amount').value };
-      if (method === 'card') body.card = { number: $('#c-num').value, name: $('#c-name').value, expiry: $('#c-exp')?.value, cvc: $('#c-cvc')?.value };
       if (method === 'paypal') body.paypalEmail = $('#pp-email').value;
-      if (method === 'usdt') { body.network = $('#u-net').value; if (mode === 'deposit') body.txHash = $('#u-tx').value; else body.address = $('#u-addr').value; }
+      if (method === 'usdt') { body.network = $('#u-net').value; if (mode === 'withdraw') body.address = $('#u-addr').value; }
       const btn = $('#wallet-submit'); btn.disabled = true;
       try {
         const r = await api('/api/wallet/' + mode, { method: 'POST', body });

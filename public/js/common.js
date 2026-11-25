@@ -225,7 +225,7 @@ const TOF = (() => {
           <div>
             <a href="/" class="logo">THE <span>OUT</span> FIT</a>
             <p class="muted mt-2" style="max-width:320px">A curated fashion marketplace connecting independent sellers with style lovers worldwide.</p>
-            <div class="pay-icons"><span>VISA</span><span>MASTERCARD</span><span>PAYPAL</span><span>USDT</span></div>
+            <div class="pay-icons"><span>PAYPAL</span><span>USDT · TRC20</span></div>
           </div>
           <div><h4>Shop</h4><ul id="footer-cats"></ul></div>
           <div><h4>Sellers</h4><ul>
@@ -239,7 +239,7 @@ const TOF = (() => {
             <li><a href="mailto:support@theoutfit.com">support@theoutfit.com</a></li>
           </ul></div>
         </div>
-        <div class="footer-bottom"><span>© ${new Date().getFullYear()} THE OUT FIT. All rights reserved.</span><span>Secure payments · Card · PayPal · USDT</span></div>
+        <div class="footer-bottom"><span>© ${new Date().getFullYear()} THE OUT FIT. All rights reserved.</span><span>Secure payments · PayPal · USDT</span></div>
       </div>`;
     document.body.appendChild(footer);
 

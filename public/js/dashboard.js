@@ -247,25 +247,23 @@
           ${(mode === 'deposit' ? (w.depositNetworks?.length ? w.depositNetworks : ['TRC20']) : ['TRC20', 'ERC20', 'BEP20']).map((n) => `<option value="${n}" ${(mode === 'withdraw' && w.payout?.usdtNetwork === n) ? 'selected' : ''}>USDT · ${n} ${n === 'TRC20' ? '(Tron)' : n === 'ERC20' ? '(Ethereum)' : '(BNB Smart Chain)'}</option>`).join('')}
         </select></div>
         ${mode === 'deposit'
-          ? `<div class="usdt-box" id="usdt-box"><div class="skeleton" style="width:170px;height:170px"></div><div></div></div>`
+          ? `<div class="usdt-box usdt-addr-only" id="usdt-box"></div>`
           : `<div class="field"><label for="u-addr">Your USDT wallet address</label><input class="input" id="u-addr" required value="${esc(w.payout?.usdtAddress || '')}" placeholder="T… (TRC20) or 0x… (ERC20/BEP20)"></div>
              <p class="hint">⚠ Make sure the address matches the selected network, otherwise funds may be lost.</p>`}
         <button class="btn btn-gold btn-lg btn-block" id="wallet-submit">${submitLabel}</button>`;
       if (mode === 'deposit') {
-        const loadQr = async () => {
+        const showAddr = () => {
           const net = $('#u-net').value;
-          try {
-            const q = await api('/api/wallet/qr/' + net);
-            $('#usdt-box').innerHTML = `<img src="${q.qr}" alt="QR code for ${net} deposit address">
-              <div><span class="pill" style="margin-bottom:10px">Send only USDT (${net})</span>
-              <p class="hint mb-0" style="margin-top:10px">Deposit address</p>
-              <div class="addr"><span class="grow">${esc(q.address)}</span><button type="button" class="icon-btn" style="width:34px;height:34px" id="copy-addr" title="Copy">${I.copy}</button></div>
-              <p class="hint mt-1 mb-0">Credited after network confirmation &amp; review.</p></div>`;
-            $('#copy-addr').onclick = () => navigator.clipboard.writeText(q.address).then(() => toast('Address copied', 'success'));
-          } catch (e) { toast(e.message, 'error'); }
+          const addr = (w.depositAddresses || {})[net] || '';
+          $('#usdt-box').innerHTML = `
+            <div><span class="pill">Send only USDT (${net})</span>
+            <p class="hint mb-0" style="margin-top:12px">Deposit address · ${net} network</p>
+            <div class="addr"><span class="grow">${esc(addr)}</span><button type="button" class="icon-btn" style="width:34px;height:34px" id="copy-addr" title="Copy">${I.copy}</button></div>
+            <p class="hint mt-1 mb-0">Credited after network confirmation &amp; review.</p></div>`;
+          $('#copy-addr').onclick = () => navigator.clipboard.writeText(addr).then(() => toast('Address copied', 'success'));
         };
-        $('#u-net').onchange = loadQr;
-        loadQr();
+        $('#u-net').onchange = showAddr;
+        showAddr();
       }
     }
 

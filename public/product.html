@@ -18,7 +18,7 @@
     await renderLayout();
     let data;
     try { data = await api('/api/products/' + qs('id')); }
-    catch { $('#pdp-root').innerHTML = `<div class="empty">${I.bag}<h1>Product not found</h1><a class="btn mt-2" href="/shop.html">Back to shop</a></div>`; return; }
+    catch { $('#pdp-root').innerHTML = `<div class="empty">${I.bag}<h1>Product not found</h1><a class="btn mt-2" href="/shop">Back to shop</a></div>`; return; }
     const { product: p, reviews, related, sellerProducts } = data;
     const s = p.seller;
     document.title = p.title + ' — THE OUT FIT';
@@ -29,7 +29,7 @@
     const dist = [5,4,3,2,1].map(n => ({ n, c: reviews.filter(r => r.rating === n).length }));
 
     $('#pdp-root').innerHTML = `
-      <div class="crumbs" style="padding-top:28px"><a href="/">Home</a> / <a href="/shop.html?category=${p.category.slug}">${esc(p.category.name)}</a> / ${esc(p.title)}</div>
+      <div class="crumbs" style="padding-top:28px"><a href="/">Home</a> / <a href="/shop?category=${p.category.slug}">${esc(p.category.name)}</a> / ${esc(p.title)}</div>
       <div class="pdp">
         <div>
           <div class="gallery-main"><img id="main-img" src="${esc(p.images[0])}" alt="${esc(p.title)}"></div>
@@ -53,10 +53,10 @@
             ${avatar(s)}
             <div class="grow">
               <span class="hint">Sold by</span>
-              <h3 style="margin:0;font-size:1.05rem"><a href="/seller.html?id=${s._id}">${esc(s.shopName || s.name)}</a></h3>
+              <h3 style="margin:0;font-size:1.05rem"><a href="/seller?id=${s._id}">${esc(s.shopName || s.name)}</a></h3>
               <span class="hint">${sellerProducts} products · ${esc(s.country || '')}</span>
             </div>
-            <a href="/seller.html?id=${s._id}" class="btn btn-sm">Visit shop</a>
+            <a href="/seller?id=${s._id}" class="btn btn-sm">Visit shop</a>
           </div>
           <div class="perks">
             <div>${I.truck} Free shipping on orders over $150</div>
@@ -100,7 +100,7 @@
       cart.add(p, qty, size); return true;
     };
     $('#add-to-cart').onclick = add;
-    $('#buy-now').onclick = () => add() && (location.href = '/cart.html');
+    $('#buy-now').onclick = () => add() && (location.href = '/cart');
 
     const starSvg = I.star;
     $('#write-review').onclick = () => TOF.modal('Write a review', `

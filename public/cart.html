@@ -24,7 +24,7 @@
     function render() {
       const items = cart.get();
       if (!items.length) {
-        $('#cart-root').innerHTML = `<div class="empty">${I.bag}<h2>Your bag is empty</h2><p>Discover something you'll love.</p><a href="/shop.html" class="btn btn-gold mt-2">Start shopping</a></div>`;
+        $('#cart-root').innerHTML = `<div class="empty">${I.bag}<h2>Your bag is empty</h2><p>Discover something you'll love.</p><a href="/shop" class="btn btn-gold mt-2">Start shopping</a></div>`;
         return;
       }
       const sub = items.reduce((a, i) => a + i.price * i.qty, 0);
@@ -34,9 +34,9 @@
           <div>
             ${items.map((i, idx) => `
               <div class="cart-item">
-                <a href="/product.html?id=${i.id}"><img src="${esc(i.image)}" alt=""></a>
+                <a href="/product?id=${i.id}"><img src="${esc(i.image)}" alt=""></a>
                 <div>
-                  <a href="/product.html?id=${i.id}"><strong>${esc(i.title)}</strong></a>
+                  <a href="/product?id=${i.id}"><strong>${esc(i.title)}</strong></a>
                   <div class="hint">Sold by ${esc(i.seller)}${i.size ? ' · Size ' + esc(i.size) : ''}</div>
                   <div class="qty mt-1" style="transform:scale(.85);transform-origin:left"><button data-dec="${idx}">−</button><input value="${i.qty}" readonly><button data-inc="${idx}">+</button></div>
                 </div>

@@ -8,7 +8,7 @@
   $('#cat-grid').innerHTML = cats
     .map(
       (c) => `
-      <a class="cat-tile reveal" href="/shop.html?category=${c.slug}">
+      <a class="cat-tile reveal" href="/shop?category=${c.slug}">
         <img src="${esc(c.image)}" alt="${esc(c.name)}" loading="lazy">
         <span class="go">${I.arrow.replace('<svg', '<svg width="18"')}</span>
         <div class="info"><h3>${esc(c.name)}</h3><span>${c.count} products · ${esc(c.description)}</span></div>
@@ -42,7 +42,7 @@
         <div class="container">
           <div class="section-head">
             <div><span class="eyebrow">${esc(c.description)}</span><h2>${esc(c.name)}</h2></div>
-            <a href="/shop.html?category=${c.slug}" class="link-arrow">Shop ${esc(c.name)} ${I.arrow.replace('<svg', '<svg width="16"')}</a>
+            <a href="/shop?category=${c.slug}" class="link-arrow">Shop ${esc(c.name)} ${I.arrow.replace('<svg', '<svg width="16"')}</a>
           </div>
           <div class="product-grid">${byCat[c.slug].slice(0, 4).map(productCard).join('')}</div>
         </div>
@@ -54,7 +54,7 @@
   $('#seller-grid').innerHTML = sellers
     .map(
       (s) => `
-      <a class="seller-card reveal" href="/seller.html?id=${s._id}">
+      <a class="seller-card reveal" href="/seller?id=${s._id}">
         ${avatar(s)}
         <h3>${esc(s.shopName || s.name)}</h3>
         <div class="rating-line" style="justify-content:center">${stars(s.rating)} ${s.rating || '—'}</div>

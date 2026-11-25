@@ -80,16 +80,16 @@ const TOF = (() => {
     const s = p.seller || {};
     return `
       <article class="product-card reveal">
-        <a href="/product.html?id=${p._id}" class="media">
+        <a href="/product?id=${p._id}" class="media">
           ${off ? `<span class="tag">-${off}%</span>` : p.featured ? '<span class="tag">BESTSELLER</span>' : ''}
           <img src="${esc(p.images?.[0])}" alt="${esc(p.title)}" loading="lazy">
           <div class="quick"><button class="btn btn-gold btn-block btn-sm" data-add="${p._id}">${I.bag} Add to bag</button></div>
         </a>
         <div class="body">
           <span class="cat">${esc(p.category?.name || '')}</span>
-          <h3><a href="/product.html?id=${p._id}">${esc(p.title)}</a></h3>
+          <h3><a href="/product?id=${p._id}">${esc(p.title)}</a></h3>
           <div class="rating-line">${stars(p.rating)} <span>${p.rating ? p.rating.toFixed(1) : '—'} (${p.numReviews || 0})</span></div>
-          <div class="seller-line">${I.store.replace('<svg', '<svg width="14" height="14"')}<a href="/seller.html?id=${s._id}">${esc(s.shopName || s.name || 'Seller')}</a></div>
+          <div class="seller-line">${I.store.replace('<svg', '<svg width="14" height="14"')}<a href="/seller?id=${s._id}">${esc(s.shopName || s.name || 'Seller')}</a></div>
           <div class="price-row"><span class="price">${money(p.price)}</span>${off ? `<span class="compare">${money(p.comparePrice)}</span>` : ''}</div>
         </div>
       </article>`;
@@ -173,7 +173,7 @@ const TOF = (() => {
     e.preventDefault();
     const p = productCache.get(b.dataset.add);
     if (p) {
-      if (p.sizes?.length) location.href = '/product.html?id=' + p._id;
+      if (p.sizes?.length) location.href = '/product?id=' + p._id;
       else cart.add(p);
     }
   });
@@ -201,18 +201,18 @@ const TOF = (() => {
       <header class="site-header">
         <div class="container header-row">
           <a href="/" class="logo" aria-label="THE OUT FIT home">THE <span>OUT</span> FIT</a>
-          <form class="search" action="/shop.html" role="search">
+          <form class="search" action="/shop" role="search">
             ${I.search}
             <input class="input" type="search" name="q" id="global-search" placeholder="Search dresses, sneakers, watches…" value="${esc(qs('q') || '')}">
           </form>
           <div class="header-actions">
-            <a href="/shop.html" class="btn btn-sm btn-dark"><span class="btn-text">Shop all</span>${I.grid.replace('<svg', '<svg class="m-only"')}</a>
-            <a href="/login.html" class="btn btn-sm" id="account-btn">${I.user}<span class="btn-text">Seller login</span></a>
-            <a href="/cart.html" class="icon-btn" id="cart-btn" aria-label="Shopping bag">${I.bag}<span class="badge-count hidden" id="cart-count">0</span></a>
+            <a href="/shop" class="btn btn-sm btn-dark"><span class="btn-text">Shop all</span>${I.grid.replace('<svg', '<svg class="m-only"')}</a>
+            <a href="/login" class="btn btn-sm" id="account-btn">${I.user}<span class="btn-text">Seller login</span></a>
+            <a href="/cart" class="icon-btn" id="cart-btn" aria-label="Shopping bag">${I.bag}<span class="badge-count hidden" id="cart-count">0</span></a>
           </div>
         </div>
         <nav class="cat-nav" aria-label="Categories"><div class="container"><ul id="cat-nav-list">
-          <li><a href="/shop.html" class="${location.pathname.startsWith('/shop') && !activeCat ? 'active' : ''}">All</a></li>
+          <li><a href="/shop" class="${location.pathname.startsWith('/shop') && !activeCat ? 'active' : ''}">All</a></li>
         </ul></div></nav>
       </header>`;
     document.body.prepend(...header.children);
@@ -229,13 +229,13 @@ const TOF = (() => {
           </div>
           <div><h4>Shop</h4><ul id="footer-cats"></ul></div>
           <div><h4>Sellers</h4><ul>
-            <li><a href="/signup.html">Become a seller</a></li>
-            <li><a href="/login.html">Seller login</a></li>
-            <li><a href="/dashboard.html">Seller dashboard</a></li>
+            <li><a href="/signup">Become a seller</a></li>
+            <li><a href="/login">Seller login</a></li>
+            <li><a href="/dashboard">Seller dashboard</a></li>
           </ul></div>
           <div><h4>Help</h4><ul>
-            <li><a href="/shop.html">All products</a></li>
-            <li><a href="/cart.html">Shopping bag</a></li>
+            <li><a href="/shop">All products</a></li>
+            <li><a href="/cart">Shopping bag</a></li>
             <li><a href="mailto:support@theoutfit.com">support@theoutfit.com</a></li>
           </ul></div>
         </div>
@@ -249,7 +249,7 @@ const TOF = (() => {
     api('/api/auth/me')
       .then(({ user }) => {
         const b = $('#account-btn');
-        b.href = '/dashboard.html';
+        b.href = '/dashboard';
         b.innerHTML = `${I.user}<span class="btn-text">${esc(user.shopName || user.name)}</span>`;
       })
       .catch(() => {});
@@ -257,9 +257,9 @@ const TOF = (() => {
     const cats = await loadCategories();
     $('#cat-nav-list').insertAdjacentHTML(
       'beforeend',
-      cats.map((c) => `<li><a href="/shop.html?category=${c.slug}" class="${activeCat === c.slug ? 'active' : ''}">${esc(c.name)}</a></li>`).join('')
+      cats.map((c) => `<li><a href="/shop?category=${c.slug}" class="${activeCat === c.slug ? 'active' : ''}">${esc(c.name)}</a></li>`).join('')
     );
-    $('#footer-cats').innerHTML = cats.slice(0, 6).map((c) => `<li><a href="/shop.html?category=${c.slug}">${esc(c.name)}</a></li>`).join('');
+    $('#footer-cats').innerHTML = cats.slice(0, 6).map((c) => `<li><a href="/shop?category=${c.slug}">${esc(c.name)}</a></li>`).join('');
   }
 
   // Reveal-on-scroll

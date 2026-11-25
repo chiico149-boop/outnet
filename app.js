@@ -27,6 +27,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// Clean URLs: /shop.html -> /shop, /index.html -> /  (Vercel does the same via "cleanUrls" in vercel.json)
+app.use((req, res, next) => {
+  if ((req.method === 'GET' || req.method === 'HEAD') && /\.html$/i.test(req.path)) {
+    const clean = req.path.replace(/(index)?\.html$/i, '') || '/';
+    const q = req.originalUrl.indexOf('?');
+    return res.redirect(301, clean + (q >= 0 ? req.originalUrl.slice(q) : ''));
+  }
+  next();
+});
+
 // Static files (used locally; on Vercel the public/ folder is served by the CDN)
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
@@ -66,9 +76,7 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api', require('./routes/shop'));
 app.use('/api', (req, res) => res.status(404).json({ message: 'Not found' }));
 
-// Hidden admin panel (file: public/the-outfit-admin.html, not linked anywhere)
-app.get('/the-outfit-admin', (req, res) => res.redirect('/the-outfit-admin.html'));
-app.get('/', (req, res) => res.redirect('/index.html'));
+// Hidden admin panel: /the-outfit-admin (file: public/the-outfit-admin.html, not linked anywhere)
 
 // Errors (multer + generic)
 app.use((err, req, res, next) => {
@@ -79,6 +87,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Server error' });
 });
 
-app.use((req, res) => res.redirect('/404.html'));
+app.use((req, res) => res.redirect('/404'));
 
 module.exports = app;

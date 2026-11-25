@@ -57,8 +57,8 @@
 
     const cats = await loadCategories();
     const total = cats.reduce((a, c) => a + c.count, 0);
-    $('#filter-cats').innerHTML = `<li><a href="/shop.html" class="${!state.category ? 'active' : ''}">All <span>${total}</span></a></li>` +
-      cats.map(c => `<li><a href="/shop.html?category=${c.slug}" class="${state.category === c.slug ? 'active' : ''}">${esc(c.name)} <span>${c.count}</span></a></li>`).join('');
+    $('#filter-cats').innerHTML = `<li><a href="/shop" class="${!state.category ? 'active' : ''}">All <span>${total}</span></a></li>` +
+      cats.map(c => `<li><a href="/shop?category=${c.slug}" class="${state.category === c.slug ? 'active' : ''}">${esc(c.name)} <span>${c.count}</span></a></li>`).join('');
 
     const cat = cats.find(c => c.slug === state.category);
     if (cat) {
@@ -76,7 +76,7 @@
       cacheProducts(data.items);
       const html = data.items.map(productCard).join('');
       if (append) $('#product-grid').insertAdjacentHTML('beforeend', html);
-      else $('#product-grid').innerHTML = html || `<div class="empty" style="grid-column:1/-1">${I.bag}<h3>No products found</h3><p>Try another category or search term.</p><a href="/shop.html" class="btn mt-2">Browse all</a></div>`;
+      else $('#product-grid').innerHTML = html || `<div class="empty" style="grid-column:1/-1">${I.bag}<h3>No products found</h3><p>Try another category or search term.</p><a href="/shop" class="btn mt-2">Browse all</a></div>`;
       $('#result-count').textContent = `${data.total} product${data.total === 1 ? '' : 's'}`;
       $('#load-more').classList.toggle('hidden', state.page >= data.pages);
       reveal();

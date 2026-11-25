@@ -8,7 +8,7 @@
   try {
     me = (await api('/api/auth/me')).user;
   } catch {
-    location.href = '/login.html';
+    location.href = '/login';
     return;
   }
   let categories = await TOF.loadCategories();
@@ -16,7 +16,7 @@
 
   function renderWho() {
     $('#who').innerHTML = `${avatar(me)}<div><strong style="display:block;line-height:1.2">${esc(me.shopName || me.name)}</strong><span class="hint">${esc(me.email)}</span></div>`;
-    $('#view-store').href = '/seller.html?id=' + me._id;
+    $('#view-store').href = '/seller?id=' + me._id;
   }
   renderWho();
 
@@ -77,7 +77,7 @@
         <div class="table-wrap mt-2"><table>
           <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>${items.map((p) => `<tr>
-            <td><div class="td-product"><img src="${esc(p.images[0])}" alt=""><div><a href="/product.html?id=${p._id}" target="_blank"><strong>${esc(p.title)}</strong></a>${p.sourceProduct ? '<div class="hint">From catalog</div>' : ''}</div></div></td>
+            <td><div class="td-product"><img src="${esc(p.images[0])}" alt=""><div><a href="/product?id=${p._id}" target="_blank"><strong>${esc(p.title)}</strong></a>${p.sourceProduct ? '<div class="hint">From catalog</div>' : ''}</div></div></td>
             <td>${esc(p.category?.name || '')}</td><td>${money(p.price)}</td><td>${p.stock}</td>
             <td>${p.rating ? p.rating.toFixed(1) + ' ★ (' + p.numReviews + ')' : '—'}</td><td>${pill(p.status)}</td>
             <td><div class="actions"><button class="btn btn-sm" data-edit="${p._id}">Edit</button>
@@ -369,7 +369,7 @@
     $$('#dash-nav [data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
     history.replaceState(null, '', '#' + tab);
     try { await tabs[tab](arg); } catch (e) {
-      if (e.status === 401 || e.status === 403) { toast(e.message, 'error'); setTimeout(() => (location.href = '/login.html'), 1200); }
+      if (e.status === 401 || e.status === 403) { toast(e.message, 'error'); setTimeout(() => (location.href = '/login'), 1200); }
       else main.innerHTML = `<div class="alert error">${esc(e.message)}</div>`;
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });

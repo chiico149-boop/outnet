@@ -114,7 +114,7 @@
           <button class="btn btn-success btn-sm" data-act="credit">Deposit</button>
           <button class="btn btn-sm ${s.status === 'blocked' ? 'btn-success' : 'btn-danger'}" data-act="block">${s.status === 'blocked' ? 'Unblock' : 'Block'}</button>
           <button class="btn btn-warning btn-sm" data-act="report">Report</button>
-          <a class="btn btn-sm" href="/seller.html?id=${s._id}" target="_blank">Open shop</a></div>
+          <a class="btn btn-sm" href="/seller?id=${s._id}" target="_blank">Open shop</a></div>
         <h4 class="mt-3">Reports</h4>
         ${s.reports.length ? `<div class="table-wrap"><table><tbody>${s.reports.map((r) => `<tr><td>${date(r.createdAt)}</td><td>${r.byAdmin ? '<span class="pill">admin</span>' : esc(r.reporterName)}</td><td>${esc(r.reason)}</td><td>${r.resolved ? pill('resolved') : `<button class="btn btn-sm" data-resolve="${r._id}">Resolve</button>`}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">No reports</p>'}
         <h4 class="mt-3">Listings</h4>
@@ -251,7 +251,7 @@
         <form class="search-row" id="p-search"><input class="input" id="p-q" placeholder="Search products…" value="${esc(q)}"><button class="btn">Search</button></form>
         <div class="table-wrap"><table><thead><tr><th>Product</th><th>Seller</th><th>Category</th><th>Price</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead><tbody>
         ${items.map((p) => `<tr>
-          <td><div class="td-product"><img src="${esc(p.images[0])}"><div><a href="/product.html?id=${p._id}" target="_blank">${esc(p.title)}</a>${p.featured ? ' <span class="pill">★ featured</span>' : ''}</div></div></td>
+          <td><div class="td-product"><img src="${esc(p.images[0])}"><div><a href="/product?id=${p._id}" target="_blank">${esc(p.title)}</a>${p.featured ? ' <span class="pill">★ featured</span>' : ''}</div></div></td>
           <td>${esc(p.seller?.shopName || p.seller?.name || '—')} ${p.seller?.status === 'blocked' ? pill('blocked') : ''}</td>
           <td>${esc(p.category?.name || '')}</td><td>${money(p.price)}</td><td>${p.rating ? p.rating.toFixed(1) + ' ★' : '—'}</td><td>${pill(p.status)}</td>
           <td><div class="actions">
